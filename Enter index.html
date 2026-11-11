@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALARM FROM HELL 👹</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+background:#09090d;
+color:white;
+font-family:Arial,sans-serif;
+text-align:center;
+padding:25px 15px;
+}
+
+.container{
+max-width:500px;
+margin:40px auto;
+background:#17171f;
+border:1px solid #393943;
+border-radius:20px;
+padding:25px;
+}
+
+h1{
+font-size:38px;
+color:#ff3449;
+}
+
+.subtitle{color:#aaa}
+
+input{
+background:#08080c;
+color:white;
+padding:15px;
+border:1px solid #555;
+border-radius:10px;
+font-size:18px;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:15px;
+border:0;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.start{background:#ff3449;color:white}
+.stop{background:#8b1726;color:white}
+.reveal{background:white;color:black}
+
+#timer{
+font-size:55px;
+font-weight:bold;
+margin:25px 0;
+}
+
+#prank{
+display:none;
+background:#250a10;
+border:2px solid red;
+padding:20px;
+border-radius:15px;
+}
+
+.price{
+font-size:55px;
+color:#ff3449;
+font-weight:bold;
+}
+
+.hidden{display:none}
+
+.warning{
+color:#ff5265;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ALARM FROM HELL 👹</h1>
+
+<p class="subtitle">Wake up. Regret everything.</p>
+
+<div id="setup">
+
+<h3>Set your alarm</h3>
+
+<input type="time" id="alarmTime">
+
+<button class="start" onclick="setAlarm()">
+ARM THE ALARM
+</button>
+
+</div>
+
+<div id="alarm" class="hidden">
+
+<p class="warning">SYSTEM ARMED</p>
+
+<div id="timer">00:00:00</div>
+
+<p>Your peaceful morning is about to end.</p>
+
+<button class="stop" onclick="cancelAlarm()">
+CANCEL ALARM
+</button>
+
+<button class="stop hidden" id="stop" onclick="stopAlarm()">
+STOP THE NOISE
+</button>
+
+</div>
+
+<div id="prank">
+
+<h2 class="warning">🚨 ALARM HIJACKED!</h2>
+
+<h3>YOUR MORNING HAS BEEN LOCKED!</h3>
+
+<p>Fictional unlocking fee:</p>
+
+<div class="price">$999.99</div>
+
+<p>Payment status: UNPAID ❌</p>
+
+<p>We accept absolutely nothing. 😂</p>
+
+<button class="reveal" onclick="reveal()">
+JUST KIDDING 😂 UNLOCK
+</button>
+
+<p class="subtitle">
+This is a harmless prank simulation.
+</p>
+
+</div>
+
+<div id="finished" class="hidden">
+
+<h1>😂 GOTCHA!</h1>
+
+<h3>You survived ALARM FROM HELL!</h3>
+
+<button class="start" onclick="resetApp()">
+TRY AGAIN
+</button>
+
+</div>
+
+<p class="subtitle" id="status">
+Waiting for instructions...
+</p>
+
+</div>
+
+<script>
+
+let alarmTime=null;
+let interval=null;
+let audio=null;
+let oscillator=null;
+let soundInterval=null;
+
+function setAlarm(){
+
+let value=document.getElementById("alarmTime").value;
+
+if(!value){
+alert("Choose an alarm time!");
+return;
+}
+
+let parts=value.split(":");
+let now=new Date();
+
+alarmTime=new Date();
+alarmTime.setHours(parts[0],parts[1],0,0);
+
+if(alarmTime<=now){
+alarmTime.setDate(alarmTime.getDate()+1);
+}
+
+document.getElementById("setup").classList.add("hidden");
+document.getElementById("alarm").classList.remove("hidden");
+
+document.getElementById("status").innerText="Alarm successfully armed!";
+
+interval=setInterval(checkAlarm,500);
+
+}
+
+function checkAlarm(){
+
+let remaining=alarmTime-new Date();
+
+if(remaining<=0){
+clearInterval(interval);
+ringAlarm();
+return;
+}
+
+let seconds=Math.floor(remaining/1000);
+
+let h=String(Math.floor(seconds/3600)).padStart(2,"0");
+let m=String(Math.floor((seconds%3600)/60)).padStart(2,"0");
+let s=String(seconds%60).padStart(2,"0");
+
+document.getElementById("timer").innerText=
+h+":"+m+":"+s;
+
+}
+
+function ringAlarm(){
+
+document.getElementById("timer").innerText="WAKE UP!";
+
+document.getElementById("stop").classList.remove("hidden");
+
+document.getElementById("status").innerText="ALARM ACTIVE!";
+
+try{
+
+let AudioContext=window.AudioContext||window.webkitAudioContext;
+
+audio=new AudioContext();
+
+oscillator=audio.createOscillator();
+
+let gain=audio.createGain();
+
+oscillator.type="sawtooth";
+oscillator.frequency.value=750;
+
+oscillator.connect(gain);
+gain.connect(audio.destination);
+
+gain.gain.value=0.15;
+
+oscillator.start();
+
+let high=false;
+
+soundInterval=setInterval(()=>{
+
+if(!audio)return;
+
+high=!high;
+
+oscillator.frequency.setTargetAtTime(
+high?950:500,
+audio.currentTime,
+0.1
+);
+
+},400);
+
+}catch(e){}
+
+}
+
+function stopSound(){
+
+if(soundInterval)clearInterval(soundInterval);
+
+if(oscillator){
+try{oscillator.stop()}catch(e){}
+}
+
+if(audio){
+audio.close();
+}
+
+audio=null;
+oscillator=null;
+
+}
+
+function stopAlarm(){
+
+stopSound();
+
+document.getElementById("alarm").classList.add("hidden");
+
+document.getElementById("prank").style.display="block";
+
+document.getElementById("status").innerText="Alarm stopped.";
+
+}
+
+function cancelAlarm(){
+
+clearInterval(interval);
+
+alarmTime=null;
+
+resetApp();
+
+}
+
+function reveal(){
+
+document.getElementById("prank").style.display="none";
+
+document.getElementById("finished").classList.remove("hidden");
+
+document.getElementById("status").innerText="Prank completed!";
+
+}
+
+function resetApp(){
+
+stopSound();
+
+clearInterval(interval);
+
+alarmTime=null;
+
+document.getElementById("setup").classList.remove("hidden");
+document.getElementById("alarm").classList.add("hidden");
+document.getElementById("prank").style.display="none";
+document.getElementById("finished").classList.add("hidden");
+document.getElementById("stop").classList.add("hidden");
+
+document.getElementById("status").innerText="Waiting for instructions...";
+
+}
+
+</script>
+
+</body>
+</html>
